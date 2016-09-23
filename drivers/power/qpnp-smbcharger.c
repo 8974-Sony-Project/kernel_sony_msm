@@ -5207,18 +5207,20 @@ static void smbchg_handle_hvdcp3_disable(struct smbchg_chip *chip)
 {
 	enum power_supply_type usb_supply_type;
 	char *usb_type_name = "NULL";
-
 	chip->pulse_cnt = 0;
 
 	if (is_hvdcp_present(chip)) {
 		smbchg_change_usb_supply_type(chip,
 			POWER_SUPPLY_TYPE_USB_HVDCP);
-	} else {
+	} else if (is_usb_present(chip)) {
 		read_usb_type(chip, &usb_type_name, &usb_supply_type);
 		smbchg_change_usb_supply_type(chip, usb_supply_type);
 		if (usb_supply_type == POWER_SUPPLY_TYPE_USB_DCP)
 			schedule_delayed_work(&chip->hvdcp_det_work,
 				msecs_to_jiffies(HVDCP_NOTIFY_MS));
+	} else {
+		smbchg_change_usb_supply_type(chip, POWER_SUPPLY_TYPE_UNKNOWN);
+
 	}
 }
 
@@ -5423,6 +5425,7 @@ out:
 	/* This could be because allow_hvdcp3 set to false runtime */
 	if (is_usb_present(chip) && !chip->allow_hvdcp3_detection)
 		smbchg_handle_hvdcp3_disable(chip);
+
 
 	return rc;
 }
@@ -5871,6 +5874,7 @@ static enum power_supply_property smbchg_battery_properties[] = {
 	POWER_SUPPLY_PROP_RERUN_AICL,
 	POWER_SUPPLY_PROP_RESTRICTED_CHARGING,
 	POWER_SUPPLY_PROP_ALLOW_HVDCP3,
+
 #ifdef CONFIG_QPNP_SMBCHARGER_EXTENSION
 	POWER_SUPPLY_PROP_ENABLE_SHUTDOWN_AT_LOW_BATTERY,
 	POWER_SUPPLY_PROP_CHARGE_FULL,
@@ -5885,6 +5889,7 @@ static enum power_supply_property smbchg_battery_properties[] = {
 	POWER_SUPPLY_PROP_BATTERY_TYPE,
 	POWER_SUPPLY_PROP_INT_CLD,
 #endif
+
 };
 
 #ifdef CONFIG_QPNP_SMBCHARGER_EXTENSION
@@ -5968,6 +5973,7 @@ static int smbchg_battery_set_property(struct power_supply *psy,
 		if (chip->typec_psy)
 			update_typec_otg_status(chip, val->intval, false);
 		break;
+
 #ifdef CONFIG_QPNP_SMBCHARGER_EXTENSION
 	case POWER_SUPPLY_PROP_ENABLE_SHUTDOWN_AT_LOW_BATTERY:
 		chip->somc_params.low_batt.shutdown_enabled =
@@ -6158,6 +6164,7 @@ static int smbchg_battery_get_property(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_ALLOW_HVDCP3:
 		val->intval = chip->allow_hvdcp3_detection;
 		break;
+
 #ifdef CONFIG_QPNP_SMBCHARGER_EXTENSION
 	case POWER_SUPPLY_PROP_ENABLE_SHUTDOWN_AT_LOW_BATTERY:
 		val->intval =
@@ -6197,6 +6204,7 @@ static int smbchg_battery_get_property(struct power_supply *psy,
 		val->intval = chip->somc_params.daemon.int_cld;
 		break;
 #endif
+
 	default:
 		return -EINVAL;
 	}
@@ -8441,6 +8449,7 @@ static int smbchg_probe(struct spmi_device *spmi)
 		}
 	}
 	chip->psy_registered = true;
+	chip->allow_hvdcp3_detection = true;
 
 	if (chip->cfg_chg_led_support &&
 			chip->schg_version == QPNP_SCHG_LITE) {
