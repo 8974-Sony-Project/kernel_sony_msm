@@ -498,6 +498,7 @@ void mmc_start_delayed_bkops(struct mmc_card *card)
 }
 EXPORT_SYMBOL(mmc_start_delayed_bkops);
 
+#ifdef ARCH_SONY_LOIRE || ARCH_SONY_TONE
  /**
  *	mmc_set_auto_bkops - set auto BKOPS for supported cards
  *	@card: MMC card to start BKOPS
@@ -550,7 +551,7 @@ out:
 	return ret;
 }
 EXPORT_SYMBOL(mmc_set_auto_bkops);
-
+#endif
 /**
  *	mmc_start_bkops - start BKOPS for supported cards
  *	@card: MMC card to start BKOPS
