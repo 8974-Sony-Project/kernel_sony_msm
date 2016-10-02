@@ -1906,7 +1906,7 @@ reinit:
 	    (card->ext_csd.fw_version == 0xA2 || card->ext_csd.fw_version == 0xA4)) {
 		card->host->caps2 &= ~MMC_CAP2_CMD_QUEUE;
 	}
-
+#ifdef ARCH_SONY_LOIRE || ARCH_SONY_TONE
 	/*
 	 * Start auto bkops, if supported.
 	 *
@@ -1929,7 +1929,7 @@ reinit:
 			printk_once("%s: %s: Enabled auto-bkops on device\n",
 				    mmc_hostname(card->host), __func__);
 	}
-
+#endif
 	if (card->ext_csd.cmdq_support && (card->host->caps2 &
 					   MMC_CAP2_CMD_QUEUE)) {
 		err = mmc_select_cmdq(card);
@@ -1953,7 +1953,6 @@ free_card:
 err:
 	return err;
 }
-
 static int mmc_can_poweroff_notify(const struct mmc_card *card)
 {
 	return card &&
@@ -2118,7 +2117,7 @@ static int _mmc_suspend(struct mmc_host *host, bool is_suspend)
 	 * as to avoid clock scaling decisions kicking in during this window.
 	 */
 	mmc_disable_clk_scaling(host);
-
+#ifdef ARCH_SONY_LOIRE || ARCH_SONY_TONE
 	if (mmc_card_doing_auto_bkops(host->card)) {
 		err = mmc_set_auto_bkops(host->card, false);
 		if (err) {
@@ -2127,7 +2126,7 @@ static int _mmc_suspend(struct mmc_host *host, bool is_suspend)
 			goto out;
 		}
 	}
-
+#endif
 	err = mmc_flush_cache(host->card);
 
 	if (err)
