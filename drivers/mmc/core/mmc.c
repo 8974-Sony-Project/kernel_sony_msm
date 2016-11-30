@@ -2126,7 +2126,7 @@ static int _mmc_suspend(struct mmc_host *host, bool is_suspend)
 			goto out;
 		}
 	}
-
+#endif
 	err = mmc_cache_ctrl(host, 0);
 	if (err)
 		goto out;
