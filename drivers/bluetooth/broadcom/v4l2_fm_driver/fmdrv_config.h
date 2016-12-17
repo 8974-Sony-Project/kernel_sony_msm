@@ -45,10 +45,10 @@
 #define DEF_V4L2_FM_AUDIO_MODE FM_AUTO_MODE
 
 /* Set default Audio path */
-#if defined (CONFIG_MACH_SONY_SHINANO) || defined (CONFIG_ARCH_SONY_KITAKAMI)
-#define DEF_V4L2_FM_AUDIO_PATH FM_AUDIO_I2S
-#else
+#if defined (CONFIG_MACH_SONY_SHINANO)
 #define DEF_V4L2_FM_AUDIO_PATH FM_AUDIO_DAC
+#else
+#define DEF_V4L2_FM_AUDIO_PATH FM_AUDIO_I2S
 #endif
 
 /*Make this TRUE if FM I2S audio to be routed over */
