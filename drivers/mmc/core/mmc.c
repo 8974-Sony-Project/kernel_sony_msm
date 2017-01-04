@@ -2117,16 +2117,7 @@ static int _mmc_suspend(struct mmc_host *host, bool is_suspend)
 	 * as to avoid clock scaling decisions kicking in during this window.
 	 */
 	mmc_disable_clk_scaling(host);
-#ifdef ARCH_SONY_LOIRE || ARCH_SONY_TONE
-	if (mmc_card_doing_auto_bkops(host->card)) {
-		err = mmc_set_auto_bkops(host->card, false);
-		if (err) {
-			pr_err("%s: %s: failed to stop auto-bkops: %d\n",
-			       mmc_hostname(host), __func__, err);
-			goto out;
-		}
-	}
-#endif
+
 	err = mmc_cache_ctrl(host, 0);
 	if (err)
 		goto out;
